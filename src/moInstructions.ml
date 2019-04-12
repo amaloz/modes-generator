@@ -101,6 +101,6 @@ let print_modes found maxsize =
     Printf.printf "# modes of length %d:\n" i;
     let l = List.filter found (fun block -> block_length block = i) in
     let l = List.map l (fun block -> string_of_t_list block) in
-    let l = List.sort ~cmp:String.compare l in
+    let l = List.sort ~compare:String.compare l in
     List.iter l (fun block -> Printf.printf "%s\n" block);
   done;

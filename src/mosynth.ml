@@ -25,7 +25,7 @@ let instructions l all =
   let all = match l with
     | "" -> all
     | s -> parse_ops all l in
-  Log.infof "Supported instructions: %s" (List.to_string ident all);
+  Log.info "Supported instructions: %s" (List.to_string ident all);
   let f s = MoInst.from_string s Block in
   List.map all ~f:f
 

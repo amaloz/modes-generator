@@ -109,13 +109,13 @@ let clear t =
   G.iter_edges_e (fun e -> replace_edge t e Int.Set.empty) t.g
 
 let assign_families t =
-  Log.infof "Assigning families to graph...";
+  Log.info "Assigning families to graph...";
   let parents e = G.E.src e |> G.pred_e t.g in
   let parent e = parents e |> List.hd_exn in
   let fam_cnt = ref 0 in
   let f e =
     let label = G.E.src e |> G.V.label in
-    Log.debugf "  Hit edge %s -> %s"
+    Log.debug "  Hit edge %s -> %s"
       ((MoOps.Instruction label) |> MoInst.string_of_t)
       ((MoOps.Instruction (G.E.dst e |> G.V.label)) |> MoInst.string_of_t);
     let r =
@@ -143,17 +143,17 @@ let assign_families t =
       | Nextiv_block | Out ->
         failwith "should not reach here!"
     in
-    Log.debugf "    Families = %s" (string_of_e e);
+    Log.debug "    Families = %s" (string_of_e e);
     r
   in
   clear t;
   List.for_all t.e f
 
 let validate t =
-  Log.infof "Validating graph...";
+  Log.info "Validating graph...";
   let smt = MoSmt.create () in
   let f v =
-    Log.debugf "  Hit %s" ((MoOps.Instruction (G.V.label v)) |> MoInst.string_of_t);
+    Log.debug "  Hit %s" ((MoOps.Instruction (G.V.label v)) |> MoInst.string_of_t);
     MoSmt.op smt (G.V.label v) in
   List.iter t.v f;
   MoSmt.finalize smt;
@@ -170,7 +170,7 @@ let string_of_dir = function
 
 (* Checks whether a graph is decryptable *)
 let is_decryptable t =
-  Log.debugf "Checking decryptability...";
+  Log.debug "Checking decryptability...";
   let get_parent_edges v = G.pred_e t.g v in
   let get_parent_edge v =
     let l = get_parent_edges v in
@@ -287,7 +287,7 @@ let is_decryptable t =
   let rec run array =
     let f l i =
       let cur, prev, dir = i in
-      Log.debugf "  %s %s %s"
+      Log.debug "  %s %s %s"
         (MoInst.string_of_t (Instruction (G.V.label cur)))
         (MoInst.string_of_t (Instruction (G.V.label prev)))
         (string_of_dir dir);
@@ -313,7 +313,7 @@ let is_decryptable t =
   clear t;
   run [(out_block, out_block, Backward)];
   let is_m_set = get_child_edge m |> is_edge_set in
-  Log.debugf "    Is M set (given only OUT)? %b" is_m_set;
+  Log.debug "    Is M set (given only OUT)? %b" is_m_set;
   let r =
     if is_m_set then
       true
@@ -323,23 +323,23 @@ let is_decryptable t =
         clear t;
         run [(start, start, Forward); (out_block, out_block, Backward)];
         let is_m_set = get_child_edge m |> is_edge_set in
-        Log.debugf "    Is M set (given OUT and START)? %b" is_m_set;
+        Log.debug "    Is M set (given OUT and START)? %b" is_m_set;
         if is_m_set then
           (* Check if NEXTIV_block is set given OUT and START *)
           let is_nextiv_block_set = get_parent_edge nextiv_block |> is_edge_set in
-          Log.debugf "    Is Nextiv_block set (given OUT and START)? %b"
+          Log.debug "    Is Nextiv_block set (given OUT and START)? %b"
             is_nextiv_block_set;
           (* Check if NEXTIV_init is set given OUT *)
           clear t;
           run [(out_init, out_init, Backward)];
           let is_nextiv_init_set = get_parent_edge nextiv_init |> is_edge_set in
-          Log.debugf "    Is Nextiv_init set (given OUT)? %b" is_nextiv_init_set;
+          Log.debug "    Is Nextiv_init set (given OUT)? %b" is_nextiv_init_set;
           is_nextiv_block_set && is_nextiv_init_set
         else
           false
       end
   in
-  Log.debugf "Result: %b" r;
+  Log.debug "Result: %b" r;
   (* Clear edges to make sure this doesn't cause problems later down the line *)
   clear t;
   r
@@ -374,7 +374,7 @@ let is_connected t =
     true
   else
     begin
-      Log.infof "Is not connected!";
+      Log.info "Is not connected!";
       false
     end
 
@@ -397,7 +397,7 @@ let is_start_location_valid t =
     if G.E.src e |> G.V.label = Nextiv_init
     && G.E.dst e |> G.V.label <> Start then
       begin
-        Log.infof "start location invalid!";
+        Log.info "start location invalid!";
         true
       end
     else
