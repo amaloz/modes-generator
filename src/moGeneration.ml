@@ -8,7 +8,7 @@ let exists ?(keep_dups=false) tbl init block =
   if keep_dups then false
   else
     let r = MoStack.eval init block in
-    Log.infof "Result = %s\n" r;
+    Log.info "Result = %s\n" r;
     match Hashtbl.add tbl ~key:r ~data:r with
     | `Duplicate -> true
     | `Ok -> false
@@ -20,14 +20,14 @@ let exists ?(keep_dups=false) tbl init block =
 let gen f ?(pruning=true) ?(keep_dups=false) init depth insts tbl =
   let blocks = ref [] in
   let process init block =
-    Log.infof "Trying [%s] [%s]"
+    Log.info "Trying [%s] [%s]"
       (MoInst.string_of_t_list init) (MoInst.string_of_t_list block);
     let g = MoGraph.create init block in
     if f g then
       begin
-        Log.infof "It works!";
+        Log.info "It works!";
         if exists ~keep_dups:keep_dups tbl init block then
-          Log.infof "already exists..."
+          Log.info "already exists..."
         else
           blocks := block :: !blocks
       end

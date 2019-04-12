@@ -64,7 +64,7 @@ let _ =
     MoInst.from_string_block (String.of_string str) phase
   in
   let run init block =
-    Log.infof "Checking [%s] [%s]\n%!" init block;
+    Log.info "Checking [%s] [%s]\n%!" init block;
     let init = to_insts init Init in
     let block = to_insts block Block in
     if !arg_is_valid then is_valid init block;
